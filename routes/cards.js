@@ -1,12 +1,19 @@
-const routerCards = require('express').Router();
-const cards = require('../data/cards');
+const router = require('express').Router();
 
-routerCards.get('/cards/', (req, res) => {
-  if (!cards) {
-    res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
-    return;
-  }
-  res.status(200).send(cards);
-});
+const {
+  getCards,
+  getCardById,
+  createCard,
+  deleteCardById,
+  likeCard,
+  dislikeCard,
+} = require('../controllers/cards');
 
-module.exports = routerCards;
+router.get('/cards', getCards);
+router.get('/cards/:cardId', getCardById);
+router.post('/cards', createCard);
+router.delete('/cards/:cardId', deleteCardById);
+router.put('/cards/:cardId/likes', likeCard);
+router.delete('/cards/:cardId/likes', dislikeCard);
+
+module.exports = router;
