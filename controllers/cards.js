@@ -9,7 +9,13 @@ module.exports.getCards = (req, res) => {
 module.exports.getCardById = (req, res) => {
   Card.findById(req.params.cardId)
     .then((card) => res.send({ data: card }))
-    .catch(() => res.status(404).send(`Карточка с id : ${req.params.id} не найдена!`));
+    .catch((err) => {
+      if (err.message.indexOf('Cast to ObjectId failed') === 0) {
+        res.status(404).send(`Карточка с id : ${req.params.cardId} не найдена!`);
+        return;
+      }
+      res.status(500).send({ message: err });
+    });
 };
 
 module.exports.createCard = (req, res) => {

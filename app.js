@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { error404BadUrlHtml } = require('./consts');
 
 const { PORT = 3000 } = process.env;
 
@@ -28,8 +27,8 @@ app.use('/', require('./routes/users'));
 app.use('/', require('./routes/cards'));
 
 app.use('*', (req, res) => {
-  res.set('Content-Type', 'text/html');
-  res.send(error404BadUrlHtml);
+  res.set('Content-Type', 'application/json');
+  res.send('{ "message": "Запрашиваемый ресурс не найден" }', 404);
 });
 
 app.listen(PORT);
