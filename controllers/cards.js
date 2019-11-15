@@ -8,7 +8,13 @@ module.exports.getCards = (req, res) => {
 
 module.exports.getCardById = (req, res) => {
   Card.findById(req.params.cardId)
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (!card) {
+        res.status(404).send(`Карточки с id : ${req.params.cardId} не существует!`);
+      } else {
+        res.send({ data: card });
+      }
+    })
     .catch((err) => {
       if (err.message.indexOf('Cast to ObjectId failed') === 0) {
         res.status(404).send(`Карточка с id : ${req.params.cardId} не найдена!`);
@@ -28,8 +34,20 @@ module.exports.createCard = (req, res) => {
 
 module.exports.deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .then((card) => {
+      if (!card) {
+        res.status(404).send(`Карточки с id : ${req.params.cardId} не существует!`);
+      } else {
+        res.send({ data: card });
+      }
+    })
+    .catch((err) => {
+      if (err.message.indexOf('Cast to ObjectId failed') === 0) {
+        res.status(404).send(`Карточка с id : ${req.params.cardId} не найдена!`);
+        return;
+      }
+      res.status(500).send({ message: err });
+    });
 };
 
 module.exports.likeCard = (req, res) => {
@@ -38,8 +56,20 @@ module.exports.likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
-    .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .then((card) => {
+      if (!card) {
+        res.status(404).send(`Карточки с id : ${req.params.cardId} не существует!`);
+      } else {
+        res.send({ data: card });
+      }
+    })
+    .catch((err) => {
+      if (err.message.indexOf('Cast to ObjectId failed') === 0) {
+        res.status(404).send(`Карточка с id : ${req.params.cardId} не найдена!`);
+        return;
+      }
+      res.status(500).send({ message: err });
+    });
 };
 
 module.exports.dislikeCard = (req, res) => {
@@ -48,6 +78,18 @@ module.exports.dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   )
-    .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .then((card) => {
+      if (!card) {
+        res.status(404).send(`Карточки с id : ${req.params.cardId} не существует!`);
+      } else {
+        res.send({ data: card });
+      }
+    })
+    .catch((err) => {
+      if (err.message.indexOf('Cast to ObjectId failed') === 0) {
+        res.status(404).send(`Карточка с id : ${req.params.cardId} не найдена!`);
+        return;
+      }
+      res.status(500).send({ message: err });
+    });
 };

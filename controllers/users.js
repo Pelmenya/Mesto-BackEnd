@@ -10,11 +10,15 @@ module.exports.getUsers = (req, res) => {
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
-      res.send({ data: user });
+      if (!user) {
+        res.status(404).send(`Пользователя с id : ${req.params.userId} не существует!`);
+      } else {
+        res.send({ data: user });
+      }
     })
     .catch((err) => {
       if (err.message.indexOf('Cast to ObjectId failed') === 0) {
-        res.status(404).send(`Пользователь с id : ${req.params.userId} не найден!`);
+        res.status(404).send(`Неправильный id : ${req.params.userId} `);
         return;
       }
       res.status(500).send({ message: err });
