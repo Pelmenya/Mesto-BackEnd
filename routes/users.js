@@ -1,19 +1,17 @@
-const routerUsers = require('express').Router();
-const users = require('../data/users');
+const router = require('express').Router();
 
-routerUsers.get('/users/', (req, res) => {
-  res.send(users);
-});
+const {
+  getUsers,
+  getUserById,
+  createUser,
+  patchUserInfo,
+  patchUserAvatar,
+} = require('../controllers/users');
 
-routerUsers.get('/users/:id', (req, res) => {
-  const { id } = req.params;
-  const result = users.find(({ _id }) => _id === id);
+router.get('/users', getUsers);
+router.get('/users/:userId', getUserById);
+router.post('/users', createUser);
+router.patch('/users/me', patchUserInfo);
+router.patch('/users/me/avatar', patchUserAvatar);
 
-  if (!result) {
-    res.status(404).send({ message: 'Нет пользователя с таким id' });
-    return;
-  }
-  res.status(200).send(result);
-});
-
-module.exports = routerUsers;
+module.exports = router;
