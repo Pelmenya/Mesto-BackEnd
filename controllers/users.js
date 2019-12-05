@@ -1,4 +1,3 @@
-require('dotenv').config(); // node -e "console.log(require('crypto').randomBytes(32).toString('hex'));" генерация ключа
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.js');
@@ -14,14 +13,14 @@ module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        res.status(404).send(`Пользователя с id : ${req.params.userId} не существует!`);
+        res.status(400).send(`Пользователя с id : ${req.params.userId} не существует!`);
       } else {
         res.send({ data: user });
       }
     })
     .catch((err) => {
       if (err.message.indexOf('Cast to ObjectId failed') === 0) {
-        res.status(404).send(`Неправильный id : ${req.params.userId} `);
+        res.status(400).send(`Неправильный id : ${req.params.userId} `);
         return;
       }
       res.status(500).send({ message: err });
@@ -36,17 +35,28 @@ module.exports.createUser = (req, res) => {
     email,
     password,
   } = req.body;
-  bcrypt
-    .hash(password, 10)
-    .then((hash) => User.create({
-      name,
-      about,
-      avatar,
-      email,
-      password: hash,
-    }))
-    .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+  if (password) {
+    return bcrypt
+      .hash(password, 10)
+      .then((hash) => User.create({
+        name,
+        about,
+        avatar,
+        email,
+        password: hash,
+      }))
+      .then((user) => res
+        .status(201)
+        .send({
+          _id: user._id,
+          name: user.name,
+          about: user.about,
+          avatar: user.avatar,
+          email: user.email,
+        }))
+      .catch((err) => res.status(500).send({ message: err.message }));
+  }
+  return res.status(400).send({ message: 'Отсутствует пароль пользователя !' });
 };
 
 module.exports.patchUserInfo = (req, res) => {
@@ -71,34 +81,23 @@ module.exports.patchUserAvatar = (req, res) => {
 
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
-  const { NODE_ENV, JWT_SECRET } = process.env;
-
-  User.findOne({ email })
-    .select('+password')
-    .then((user) => {
-      if (!user) {
-        return Promise.reject(new Error('Неправильная почта или пароль'));
-      }
-      return bcrypt.compare(password, user.password).then((matched) => {
-        if (!matched) {
-          return Promise.reject(new Error('Неправильная почта или пароль'));
-        }
-        const token = jwt.sign(
-          { _id: user._id },
-          NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
-          { expiresIn: '7d' },
-        );
-        return res
+  if (email && password) {
+    return User.findUserByCredentials(email, password)
+      .then((user) => {
+        const token = jwt.sign({ _id: user._id }, process.env.KEY, { expiresIn: '7d' });
+        res
           .cookie('jwt', token, {
             maxAge: 3600000 * 24 * 7,
             httpOnly: true,
             sameSite: true,
           })
+          .send({ message: 'Аутентификация успешна !!!' })
           .end();
+      })
+      .catch((err) => {
+        // ошибка аутентификации
+        res.status(401).send({ message: err.message });
       });
-    })
-    .catch((err) => {
-      // ошибка аутентификации
-      res.status(401).send({ message: err.message });
-    });
+  }
+  return res.status(401).send({ message: 'Отсутсвует email или пароль !!! ' });
 };

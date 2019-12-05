@@ -6,6 +6,10 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const auth = require('./middlewares/auth');
 
+require('dotenv').config(); // node -e "console.log(require('crypto').randomBytes(32).toString('hex'));" генерация ключа
+
+process.env.KEY = process.env.NODE_ENV === 'production' ? process.env.JWT_SECRET : require('./config');
+
 const { PORT = 3000 } = process.env;
 const { login, createUser } = require('./controllers/users');
 
