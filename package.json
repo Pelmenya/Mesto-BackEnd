@@ -1,6 +1,6 @@
 {
   "name": "backend",
-  "version": "1.0.0",
+  "version": "1.0.6",
   "description": "REST API the project Mesto with him integration MongoDB database",
   "main": "app.js",
   "scripts": {
