@@ -19,7 +19,7 @@
 | PATCH /users/me/avatar                            | обновить аватар                                                     |
 | PUT /cards/:cardId/likes                          | поставить лайк карточке                                             |
 | DELETE /cards/:cardId/likes                       | убрать лайк карточке                                                |
-|GET /crash-test                                    | тест на поднятие автоматического сервера в облаке                   |
+|GET /crash-test                                    | тест на автоматическое поднятие сервера в облаке                    |
 
 
 
