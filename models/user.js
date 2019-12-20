@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const validator = require('validator');
 const { urlRegEx } = require('../consts');
-const UnauthorizedError = require('../scripts/UnauthorizedError');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -18,9 +18,11 @@ const userSchema = new mongoose.Schema({
     type: String, // инфа — это строка
     minlength: 2, // минимальная длина инфы — 2 символа
     maxlength: 30, // а максимальная — 30 символов
+    required: true,
   },
   avatar: {
     type: String,
+    required: true,
     match: urlRegEx,
   },
   email: {

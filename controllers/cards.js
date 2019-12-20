@@ -1,6 +1,6 @@
 const Card = require('../models/card.js');
-const NotFoundError = require('../scripts/NotFoundError');
-const FobidenError = require('../scripts/ForbiddenError');
+const NotFoundError = require('../errors/NotFoundError');
+const FobidenError = require('../errors/ForbiddenError');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
@@ -39,7 +39,11 @@ module.exports.deleteCardById = (req, res, next) => {
         throw new NotFoundError(`Карточки с id : ${req.params.cardId} не существует!`);
       } else if (req.user._id === card.owner.toString()) {
         Card.findByIdAndRemove(req.params.cardId)
-          .then((cardRemove) => res.send({ remove: cardRemove }))
+          .then((cardRemove) => {
+            if (cardRemove) {
+              res.send({ remove: cardRemove });
+            } else throw new NotFoundError(`Карточки с id : ${req.params.cardId} уже была удалена Вами!`);
+          })
           .catch(next);
       } else throw new FobidenError('Недостаточно прав доступа к ресурсу');
     })

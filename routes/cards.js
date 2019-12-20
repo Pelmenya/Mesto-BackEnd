@@ -19,7 +19,7 @@ router.get(
       cardId: Joi.string().alphanum().length(24),
     }),
   }),
-  getCardById
+  getCardById,
 );
 router.post(
   '/cards',
@@ -29,7 +29,7 @@ router.post(
       link: Joi.string().required().uri(),
     }),
   }),
-  createCard
+  createCard,
 );
 router.delete(
   '/cards/:cardId',
@@ -39,7 +39,7 @@ router.delete(
       cardId: Joi.string().alphanum().length(24),
     }),
   }),
-  deleteCardById
+  deleteCardById,
 );
 router.put(
   '/cards/:cardId/likes',
@@ -49,7 +49,7 @@ router.put(
       cardId: Joi.string().alphanum().length(24),
     }),
   }),
-  likeCard
+  likeCard,
 );
 router.delete(
   '/cards/:cardId/likes',
@@ -59,7 +59,7 @@ router.delete(
       cardId: Joi.string().alphanum().length(24),
     }),
   }),
-  dislikeCard
+  dislikeCard,
 );
 
 module.exports = router;

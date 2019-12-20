@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
 const { errors } = require('celebrate');
-const BadRequestError = require('./scripts/BadRequestError');
+const BadRequestError = require('./errors/BadRequestError');
 const errorsAll = require('./middlewares/errors');
 
 
@@ -44,12 +44,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(requestLogger); // подключаем логгер запросов
-
-app.get('/crash-test', () => {
-  setTimeout(() => {
-    throw new Error('Сервер сейчас упадёт');
-  }, 0);
-});
 
 app.use('/', require('./routes/userAuth'));
 
