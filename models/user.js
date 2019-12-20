@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const validator = require('validator');
 const { urlRegEx } = require('../consts');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -17,12 +18,12 @@ const userSchema = new mongoose.Schema({
     type: String, // инфа — это строка
     minlength: 2, // минимальная длина инфы — 2 символа
     maxlength: 30, // а максимальная — 30 символов
-    required: true, // оно должно быть у каждого пользователя, так что инфа — обязательное поле
+    required: true,
   },
   avatar: {
     type: String,
+    required: true,
     match: urlRegEx,
-    required: true, // оно должно быть у каждого пользователя, так что имя — обязательное поле
   },
   email: {
     type: String,
@@ -43,11 +44,11 @@ const userSchema = new mongoose.Schema({
 userSchema.statics.findUserByCredentials = function authenticationUser(email, password) {
   return this.findOne({ email }).select('+password').then((user) => {
     if (!user) {
-      return Promise.reject(new Error('Неправильная почта или пароль'));
+      return Promise.reject(new UnauthorizedError('Неправильная почта или пароль'));
     }
     return bcrypt.compare(password, user.password).then((matched) => {
       if (!matched) {
-        return Promise.reject(new Error('Неправильные почта или пароль'));
+        return Promise.reject(new UnauthorizedError('Неправильные почта или пароль'));
       }
       return user; // теперь user доступен
     });

@@ -4,14 +4,21 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+
+const { errors } = require('celebrate');
+const BadRequestError = require('./errors/BadRequestError');
+const errorsAll = require('./middlewares/errors');
+
+
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const auth = require('./middlewares/auth');
+
 
 require('dotenv').config(); // node -e "console.log(require('crypto').randomBytes(32).toString('hex'));" генерация ключа
 
 process.env.KEY = process.env.NODE_ENV === 'production' ? process.env.JWT_SECRET : require('./config');
 
 const { PORT = 3000 } = process.env;
-const { login, createUser } = require('./controllers/users');
 
 const app = express();
 
@@ -36,17 +43,23 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.use(requestLogger); // подключаем логгер запросов
+
+app.use('/', require('./routes/userAuth'));
 
 app.use(auth);
 
 app.use('/', require('./routes/users'));
 app.use('/', require('./routes/cards'));
 
-app.use('*', (req, res) => {
-  res.set('Content-Type', 'application/json');
-  res.send('{ "message": "Запрашиваемый ресурс не найден" }', 404);
+app.use('*', (res, req, next) => {
+  next(new BadRequestError('Запрашиваемый ресурс не найден')); // неправильная маршрутизация
 });
+
+app.use(errorLogger); // подключаем логгер ошибок
+
+app.use(errors()); // ошибки с celebrate
+
+app.use(errorsAll); // ошибки централизация
 
 app.listen(PORT);

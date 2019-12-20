@@ -1,4 +1,4 @@
-# Mesto-BackEnd v.0.0.7
+# Mesto-BackEnd v.0.0.8
 
 ## Практическая работа №15
 
@@ -19,9 +19,6 @@
 | PATCH /users/me/avatar                            | обновить аватар                                                     |
 | PUT /cards/:cardId/likes                          | поставить лайк карточке                                             |
 | DELETE /cards/:cardId/likes                       | убрать лайк карточке                                                |
-|GET /crash-test                                    | тест на автоматическое поднятие сервера в облаке                    |
-
-
 
 ## Установка
 
